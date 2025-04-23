@@ -49,7 +49,7 @@ def get_picture_by_id(id):
         if picture['id'] == id:
             return jsonify(picture), 200
         else:
-            return {"message": f"Picture with ID {id} is not found."}, 404
+            return {"message": f"picture with id {id} not found"}, 404
     
 
 ######################################################################
@@ -58,7 +58,22 @@ def get_picture_by_id(id):
 
 @app.route("/picture", methods=["POST"])
 def create_picture():
-    pass
+    picture = request.json
+    
+    if not picture:
+        return {"message": "Invalid input parameter"}, 422
+
+    data_ids = [d['id'] for d in data]
+    if picture['id'] in data_ids:
+        return {"Message": f"picture with id {picture['id']} already present"}, 302
+
+    try:
+        data.append(picture)
+    except NameError:
+        return {"message": "data not defined"}, 500
+
+    return jsonify(picture), 201
+
 
 ######################################################################
 # UPDATE A PICTURE
