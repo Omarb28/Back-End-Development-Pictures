@@ -48,8 +48,8 @@ def get_picture_by_id(id):
     for picture in data:
         if picture['id'] == id:
             return jsonify(picture), 200
-        else:
-            return {"message": f"picture with id {id} not found"}, 404
+
+    return {"message": f"picture not found"}, 404
     
 
 ######################################################################
@@ -58,21 +58,16 @@ def get_picture_by_id(id):
 
 @app.route("/picture", methods=["POST"])
 def create_picture():
-    picture = request.json
-    
-    if not picture:
+    new_picture = request.json
+    if not new_picture:
         return {"message": "Invalid input parameter"}, 422
 
-    data_ids = [d['id'] for d in data]
-    if picture['id'] in data_ids:
-        return {"Message": f"picture with id {picture['id']} already present"}, 302
+    for index, picture in enumerate(data):
+        if picture['id'] == new_picture['id']:
+            return {"Message": f"picture with id {new_picture['id']} already present"}, 302
 
-    try:
-        data.append(picture)
-    except NameError:
-        return {"message": "data not defined"}, 500
-
-    return jsonify(picture), 201
+    data.append(new_picture)
+    return jsonify(new_picture), 201
 
 
 ######################################################################
@@ -81,7 +76,17 @@ def create_picture():
 
 @app.route("/picture/<int:id>", methods=["PUT"])
 def update_picture(id):
-    pass
+    updated_picture = request.json
+    if not updated_picture:
+        return {"message": "Invalid input parameter"}, 422
+
+    for index, picture in enumerate(data):
+        if picture['id'] == id:
+            data[index] = updated_picture
+            return jsonify(updated_picture), 200
+    
+    return {"message": f"picture not found"}, 404
+
 
 ######################################################################
 # DELETE A PICTURE
@@ -89,5 +94,9 @@ def update_picture(id):
 
 @app.route("/picture/<int:id>", methods=["DELETE"])
 def delete_picture(id):
-    pass
-
+    for index, picture in enumerate(data):
+        if picture['id'] == id:
+            data.pop(index)
+            return "", 204
+        else:
+            return {"message": f"picture not found"}, 404
